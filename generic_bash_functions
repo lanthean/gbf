@@ -1,0 +1,206 @@
+#!/usr/local/bin/bash
+##
+# @Author   martin.bortel@gmail.com
+# @Created  02/07/2018
+# @Updated  16/06/2021
+# 
+# @Package  My generic bash functions
+##
+
+function log(){
+  #
+  # Log messages to stdout or $LOG_FILE if set
+  # $LOG_LEVEL="i"
+  #
+  # Usage: log <level> <message>
+  # level: [t]race | [d]ebug | [i]nfo | [w]arning | [e]rror | [c]ritical
+  # message: log message
+  #
+  TEE=/usr/bin/tee
+
+  declare -A levels=([t]=0 [d]=1 [i]=2 [w]=3 [e]=4 [c]=5)
+  if [ -z $LOG_LEVEL ];then
+    LOG_LEVEL=i
+  fi
+  # echo "log_level: ${LOG_LEVEL}"
+
+  if [[ ! -z $LOG_FILE && -d $(dirname $LOG_FILE) ]];then
+    if [[ ! -f $LOG_FILE ]];then
+      touch $LOG_FILE
+    fi
+    log_file=$LOG_FILE
+    time_stamp=$(date +"%Y-%m-%d %H:%I:%S %Z")
+  else
+    log_file=/dev/null
+    time_stamp=""
+  fi
+
+  local log_priority="$1"
+  local log_message="$2"
+
+  #check if level exists
+  if [[ ${levels[$log_priority]} ]];then
+    #check if level is enough
+    (( ${levels[$log_priority]} < ${levels[$LOG_LEVEL]} )) && return 2
+  fi
+
+  ##
+  # Color table
+  # --
+  # Black        0;30     Dark Gray     1;30
+  # Red          0;31     Light Red     1;31
+  # Green        0;32     Light Green   1;32
+  # Brown/Orange 0;33     Yellow        1;33
+  # Blue         0;34     Light Blue    1;34
+  # Purple       0;35     Light Purple  1;35
+  # Cyan         0;36     Light Cyan    1;36
+  # Light Gray   0;37     White         1;37
+  # --
+  # Colour output
+  #    .---------- constant part!
+  #    vvvv vvvv-- the code from above
+  # RED='\033[0;31m'
+  # NC='\033[0m' # No Color
+  # printf "I ${RED}love${NC} Stack Overflow\n"
+  NC='\033[0m' # No Color
+  case $log_priority in
+    \?) # unknown level
+      COLOUR='\033[0;37m'
+      printf "$time_stamp | ${COLOUR}[?]${NC} $log_message" | ${TEE} -a $log_file
+      ;;
+    t) # trace
+      COLOUR='\033[1;37m'
+      printf "$time_stamp | ${COLOUR}[t]${NC} $log_message\n" | ${TEE} -a $log_file
+      ;;
+    d) # debug
+      COLOUR='\033[1;37m'
+      printf "$time_stamp | ${COLOUR}[d]${NC} $log_message\n" | ${TEE} -a $log_file
+      ;;
+    i)
+      COLOUR='\033[0;32m'
+      printf "$time_stamp | ${COLOUR}[i]${NC} $log_message\n" | ${TEE} -a $log_file
+      ;;
+    w)
+      COLOUR='\033[0;37m'
+      printf "$time_stamp | ${COLOUR}[w] $log_message${NC}\n" | ${TEE} -a $log_file
+      ;;
+    e)
+      COLOUR='\033[1;31m'
+      printf "$time_stamp | ${COLOUR}[e] $log_message${NC}\n" | ${TEE} -a $log_file
+      ;;
+    c)
+      COLOUR='\033[1;31m'
+      printf "$time_stamp | ${COLOUR}[c] $log_message${NC}\n" | ${TEE} -a $log_file
+      ;;
+    *)
+      printf "$time_stamp $log_message\n" | ${TEE} -a $log_file
+      ;;
+  esac
+  }
+
+function sys_log() {
+  #
+  # Log messages to local6 (/var/log/local6)
+  # LOG_LEVEL="info"
+  #
+	# $1 - severity (debug|info|warning|error)
+	# $2 - log message
+	#
+	# EXAMPLE:
+	# log debug "Info level log message into local6 syslog facility with prefix [debug]"
+	# log info "Info level log message into local6 syslog facility with prefix [info]"
+	# log warning "Info level log message into local6 syslog facility with prefix [warning]"
+	# log error "Info level log message into local6 syslog facility with prefix [error]"
+	#
+	# @TODO:
+  #   - Update to use severity levels - if possible, not just prefix
+
+  # man logger
+  # FACILITIES AND LEVELS
+  # Valid facility names are:
+  #        auth
+  #        authpriv   for security information of a sensitive nature
+  #        cron
+  #        daemon
+  #        ftp
+  #        kern       cannot be generated from userspace process, automatically converted to user
+  #        lpr
+  #        mail
+  #        news
+  #        syslog
+  #        user
+  #        uucp
+  #        local0
+  #          to
+  #        local7
+  #        security   deprecated synonym for auth
+
+  # Valid level names are:
+  #        emerg
+  #        alert
+  #        crit
+  #        err
+  #        warning
+  #        notice
+  #        info
+  #        debug
+  #        panic     deprecated synonym for emerg
+  #        error     deprecated synonym for err
+  #        warn      deprecated synonym for warning
+
+  # For the priority order and intended purposes of these facilities and levels, see syslog(3).
+
+  if [[ ! -f /usr/bin/logger ]];then
+    echo "[ERROR] no /usr/bin/logger available"
+    exit 1
+  fi
+
+  declare -A levels=([trace]=0 [debug]=1 [info]=2 [warning]=3 [error]=4 [critical]=5 [alert]=6 [emergency]=7)
+  if [ -z $LOG_LEVEL ];then
+    LOG_LEVEL="info"
+  fi
+
+  local log_priority=$1
+  local log_message=$2
+
+  case $log_priority in
+    trace )
+      /usr/bin/logger -i -t $0 -p local6.notice "[$log_priority] $log_message"
+      ;;
+    debug )
+      /usr/bin/logger -i -t $0 -p local6.debug "[$log_priority] $log_message"
+      ;;
+    info )
+      /usr/bin/logger -i -t $0 -p local6.info "[$log_priority] $log_message"
+      ;;
+    warning )
+      /usr/bin/logger -i -t $0 -p local6.warning "[$log_priority] $log_message"
+      ;;
+    error )
+      /usr/bin/logger -i -t $0 -p local6.err "[$log_priority] $log_message"
+      ;;
+    critical )
+      /usr/bin/logger -i -t $0 -p local6.crit "[$log_priority] $log_message"
+      ;;
+    alert )
+      /usr/bin/logger -i -t $0 -p local6.alert "[$log_priority] $log_message"
+      ;;
+    emergency )
+      /usr/bin/logger -i -t $0 -p local6.emerg "[$log_priority] $log_message"
+      ;;
+  esac
+
+  # #check if level exists
+  # [[ ${levels[$log_priority]} ]] || return 1
+  # #check if level is enough
+  # (( ${levels[$log_priority]} < ${levels[$LOG_LEVEL]} )) && return 2
+	
+	# if [[ -f /usr/bin/logger ]];then
+	# 	if [ $# -gt 0 ]; then
+	# 		/usr/bin/logger -i -t $0 -p local6.info "[$1] $2"
+	# 	fi
+	# fi
+  }
+
+# EOF
+##
