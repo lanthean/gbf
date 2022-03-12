@@ -29,7 +29,7 @@ function log(){
       touch $LOG_FILE
     fi
     log_file=$LOG_FILE
-    time_stamp=$(date +"%Y-%m-%d %H:%I:%S %Z")
+    time_stamp="$(date +"%Y-%m-%d %H:%I:%S %Z") "
   else
     log_file=/dev/null
     time_stamp=""
@@ -66,31 +66,31 @@ function log(){
   case $log_priority in
     \?) # unknown level
       COLOUR='\033[0;37m'
-      printf "$time_stamp | ${COLOUR}[?]${NC} $log_message" | ${TEE} -a $log_file
+      printf "$time_stamp| ${COLOUR}[?]${NC} $log_message" | ${TEE} -a $log_file
       ;;
     t) # trace
       COLOUR='\033[1;37m'
-      printf "$time_stamp | ${COLOUR}[t]${NC} $log_message\n" | ${TEE} -a $log_file
+      printf "$time_stamp| ${COLOUR}[t]${NC} $log_message\n" | ${TEE} -a $log_file
       ;;
     d) # debug
       COLOUR='\033[1;37m'
-      printf "$time_stamp | ${COLOUR}[d]${NC} $log_message\n" | ${TEE} -a $log_file
+      printf "$time_stamp| ${COLOUR}[d]${NC} $log_message\n" | ${TEE} -a $log_file
       ;;
     i)
       COLOUR='\033[0;32m'
-      printf "$time_stamp | ${COLOUR}[i]${NC} $log_message\n" | ${TEE} -a $log_file
+      printf "$time_stamp| ${COLOUR}[i]${NC} $log_message\n" | ${TEE} -a $log_file
       ;;
     w)
       COLOUR='\033[0;37m'
-      printf "$time_stamp | ${COLOUR}[w] $log_message${NC}\n" | ${TEE} -a $log_file
+      printf "$time_stamp| ${COLOUR}[w] $log_message${NC}\n" | ${TEE} -a $log_file
       ;;
     e)
       COLOUR='\033[1;31m'
-      printf "$time_stamp | ${COLOUR}[e] $log_message${NC}\n" | ${TEE} -a $log_file
+      printf "$time_stamp| ${COLOUR}[e] $log_message${NC}\n" | ${TEE} -a $log_file
       ;;
     c)
       COLOUR='\033[1;31m'
-      printf "$time_stamp | ${COLOUR}[c] $log_message${NC}\n" | ${TEE} -a $log_file
+      printf "$time_stamp| ${COLOUR}[c] $log_message${NC}\n" | ${TEE} -a $log_file
       ;;
     *)
       printf "$time_stamp $log_message\n" | ${TEE} -a $log_file
