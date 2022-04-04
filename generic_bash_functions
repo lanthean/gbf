@@ -13,12 +13,12 @@ function log(){
   # $LOG_LEVEL="i"
   #
   # Usage: log <level> <message>
-  # level: [t]race | [d]ebug | [i]nfo | [w]arning | [e]rror | [c]ritical
+  # level: [t]race | [d]ebug | [i]nfo [ok] | [w]arning | [e]rror [nok] | [c]ritical
   # message: log message
   #
   TEE=/usr/bin/tee
 
-  declare -A levels=([t]=0 [d]=1 [i]=2 [w]=3 [e]=4 [c]=5)
+  declare -A levels=([t]=0 [d]=1 [i]=2 [w]=3 [e]=4 [ok]=5 [nok]=6 [c]=7)
   if [ -z $LOG_LEVEL ];then
     LOG_LEVEL=i
   fi
@@ -76,17 +76,17 @@ function log(){
       COLOUR='\033[1;37m'
       printf "$time_stamp| ${COLOUR}[d]${NC} $log_message\n" | ${TEE} -a $log_file
       ;;
-    i)
+    i | ok)
       COLOUR='\033[0;32m'
-      printf "$time_stamp| ${COLOUR}[i]${NC} $log_message\n" | ${TEE} -a $log_file
+      printf "$time_stamp| ${COLOUR}[$log_priority]${NC} $log_message\n" | ${TEE} -a $log_file
       ;;
     w)
       COLOUR='\033[0;37m'
       printf "$time_stamp| ${COLOUR}[w] $log_message${NC}\n" | ${TEE} -a $log_file
       ;;
-    e)
+    e | nok)
       COLOUR='\033[1;31m'
-      printf "$time_stamp| ${COLOUR}[e] $log_message${NC}\n" | ${TEE} -a $log_file
+      printf "$time_stamp| ${COLOUR}[$log_priority] $log_message${NC}\n" | ${TEE} -a $log_file
       ;;
     c)
       COLOUR='\033[1;31m'
