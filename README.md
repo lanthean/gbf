@@ -33,6 +33,25 @@ sys_log info "This is a log message with severity prefix info"
 /var/log/local6 will contain:
 2019-04-02T12:07:23.199934+00:00 rnd-vm-10-198 -bash[12662]: [info] This is a log message with severity prefix info
 ```
+### progress\_bar
+Display waiting pattern until a process finishes  
+```sh
+progress_bar <$PID>
+```
+```
+EXAMPLE
+progress_bar 37458
+
+# Below lines are displayed in one line, here multiple lines are used to articulate what is shown.
+[processing of 37550] \
+[processing of 37550] |
+[processing of 37550] /
+[processing of 37550] -
+
+# Below line is displayed once the $PID has stopped, this line overwrites the above.
+# Once the processing of the $PID stopped, only below lines remains in the terminal scroll view.
+[processing of 37550] has finished
+```
 
 ## Usage
 ```sh

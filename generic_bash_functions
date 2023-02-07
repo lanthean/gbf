@@ -201,6 +201,34 @@ function sys_log() {
 	# 	fi
 	# fi
   }
+function progress_bar() {
+  # 
+  # Function to display waiting pattern in command line
 
+  # Keyword arguments:
+  # @param 1: PID - process id of the process, which we are waiting for
+
+  # Return:
+  # 1: not enough input parameters (missing PID number)
+  # 
+  [[ $# -eq 0 ]] && return 1
+  pid=$1 # Process Id of the previous running command
+  message="processing of $pid"
+
+  spin=("-" "\\" "|" "/")
+
+  [[ $# -gt 1 ]] && message=$2
+  echo -n "[${message}]  ${spin[0]}"
+  # while ps aux | grep -q $pid; do
+  while kill -0 $pid 2> /dev/null; do
+    for i in "${spin[@]}";do
+          echo -ne "\b$i"
+          sleep 0.1
+    done
+  done
+  echo -ne "\r[${message}] has finished"
+  echo ""
+
+  } # eo progress_bar
 # EOF
 ##
