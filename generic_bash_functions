@@ -24,7 +24,9 @@ function log(){
   fi
   # echo "log_level: ${LOG_LEVEL}"
 
-  if [[ ! -z $LOG_FILE && -d $(dirname $LOG_FILE) ]];then
+  if [[ "x$LOG_FILE" != "x" ]];then
+    LOG_DIR=$(dirname $LOG_FILE)
+    [[ -d $LOG_DIR ]] || mkdir -p $LOG_DIR
     if [[ ! -f $LOG_FILE ]];then
       touch $LOG_FILE
     fi
