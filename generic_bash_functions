@@ -16,6 +16,7 @@ function log(){
   # level: [t]race | [d]ebug | [i]nfo [ok] | [w]arning | [e]rror [nok] | [c]ritical
   # message: log message
   #
+  local time_stamp
   TEE=/usr/bin/tee
 
   declare -A levels=([t]=0 [d]=1 [i]=2 [w]=3 [e]=4 [ok]=5 [nok]=6 [c]=7)
@@ -31,7 +32,7 @@ function log(){
       touch $LOG_FILE
     fi
     log_file=$LOG_FILE
-    time_stamp="$(date +"%Y-%m-%d %H:%I:%S %Z") "
+    time_stamp="$(date +"%Y-%m-%d %H:%M:%S %Z") "
   else
     log_file=/dev/null
     time_stamp=""
