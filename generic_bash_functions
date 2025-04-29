@@ -2,7 +2,7 @@
 ##
 # @Author   martin.bortel@gmail.com
 # @Created  02/07/2018
-# @Updated  16/06/2021
+# @Updated  29/04/2025
 # 
 # @Package  My generic bash functions
 ##
@@ -67,17 +67,14 @@ function log(){
   # printf "I ${RED}love${NC} Stack Overflow\n"
   NC='\033[0m' # No Color
   case $log_priority in
-    \?) # unknown level
+    \?) 
+      # unknown level
       COLOUR='\033[0;37m'
-      printf "$time_stamp| ${COLOUR}[?]${NC} $log_message" | ${TEE} -a $log_file
+      printf "$time_stamp| ${COLOUR}[$log_priority]${NC} $log_message" | ${TEE} -a $log_file
       ;;
-    t) # trace
+    t | d | trace | debug)
       COLOUR='\033[1;37m'
-      printf "$time_stamp| ${COLOUR}[t]${NC} $log_message\n" | ${TEE} -a $log_file
-      ;;
-    d) # debug
-      COLOUR='\033[1;37m'
-      printf "$time_stamp| ${COLOUR}[d]${NC} $log_message\n" | ${TEE} -a $log_file
+      printf "$time_stamp| ${COLOUR}[$log_priority]${NC} $log_message\n" | ${TEE} -a $log_file
       ;;
     i | ok)
       COLOUR='\033[0;32m'
@@ -85,15 +82,11 @@ function log(){
       ;;
     w)
       COLOUR='\033[0;37m'
-      printf "$time_stamp| ${COLOUR}[w] $log_message${NC}\n" | ${TEE} -a $log_file
-      ;;
-    e | nok)
-      COLOUR='\033[1;31m'
       printf "$time_stamp| ${COLOUR}[$log_priority] $log_message${NC}\n" | ${TEE} -a $log_file
       ;;
-    c)
+    e | nok | c)
       COLOUR='\033[1;31m'
-      printf "$time_stamp| ${COLOUR}[c] $log_message${NC}\n" | ${TEE} -a $log_file
+      printf "$time_stamp| ${COLOUR}[$log_priority] $log_message${NC}\n" | ${TEE} -a $log_file
       ;;
     *)
       printf "$time_stamp $log_message\n" | ${TEE} -a $log_file
